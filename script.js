@@ -27,6 +27,7 @@
     for (let i = 0; i < n; i++) {
       const p = document.createElement('span');
       p.className = 'pop';
+      p.setAttribute('aria-hidden','true');
       p.textContent = glyphs[Math.random() * glyphs.length | 0];
       p.style.left = x + 'px'; p.style.top = y + 'px';
       const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 80;
@@ -53,6 +54,7 @@
     burst(e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, 8);
     if (level >= 100) { burst(r.left + r.width / 2, r.top + r.height / 2, 18); return; }
     level = Math.min(100, level + 10);
+    heart.setAttribute('aria-label', 'پر کردن قلب: ' + fa(level) + ' درصد');
     fill.setAttribute('y', 92 - 92 * level / 100);
     pct.textContent = fa(level) + '٪';
     hint.textContent = steps[Math.min(steps.length - 1, Math.floor(level / 30))];
@@ -82,13 +84,17 @@
 
   // reason cards
   document.querySelectorAll('.card').forEach(c =>
-    c.addEventListener('click', () => c.classList.toggle('flip')));
+    c.addEventListener('click', () => c.setAttribute('aria-pressed', String(c.classList.toggle('flip')))));
 
   // love meter
   const meterFill = document.getElementById('meterFill');
   const label = document.getElementById('meterLabel');
   const meter = document.getElementById('meter');
   document.getElementById('measure').addEventListener('click', e => {
+    if (e.currentTarget.disabled) return;
+    const button = e.currentTarget;
+    button.disabled = true;
+    meter.setAttribute('aria-valuenow', 0);
     meterFill.style.width = '0';
     label.textContent = 'دارم اندازه می‌گیرم…';
     requestAnimationFrame(() => setTimeout(() => { meterFill.style.width = '100%'; }, 60));
@@ -97,10 +103,11 @@
       n += 7;
       if (n >= 100) {
         clearInterval(t);
+        button.disabled = false;
         meter.setAttribute('aria-valuenow', 100);
         label.textContent = 'خطا: عدد جا نشد. بی‌نهایت ♾️💗';
         burst(e.clientX, e.clientY, 20);
-      } else label.textContent = fa(n) + '٪';
+      } else meter.setAttribute('aria-valuenow', n);
     }, 150);
   });
 })();
